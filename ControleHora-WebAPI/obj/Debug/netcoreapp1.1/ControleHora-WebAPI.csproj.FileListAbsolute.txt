@@ -1,0 +1,9 @@
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\bin\Debug\netcoreapp1.1\ControleHora-WebAPI.deps.json
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\bin\Debug\netcoreapp1.1\ControleHora-WebAPI.runtimeconfig.json
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\bin\Debug\netcoreapp1.1\ControleHora-WebAPI.runtimeconfig.dev.json
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\bin\Debug\netcoreapp1.1\ControleHora-WebAPI.dll
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\obj\Debug\netcoreapp1.1\ControleHora-WebAPI.csprojResolveAssemblyReference.cache
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\obj\Debug\netcoreapp1.1\ControleHora-WebAPI.AssemblyInfo.cs
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\bin\Debug\netcoreapp1.1\ControleHora-WebAPI.pdb
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\obj\Debug\netcoreapp1.1\ControleHora-WebAPI.dll
+C:\Dev\Workspace\Github\ControleHora-WebAPI\ControleHora-WebAPI\obj\Debug\netcoreapp1.1\ControleHora-WebAPI.pdb
