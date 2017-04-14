@@ -2,11 +2,9 @@ using System;
 using System.ComponentModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Newtonsoft.Json;
 
 namespace ControleHora_WebAPI.Models
 {
-    [JsonObject]
     public class Employee
     {
         [BsonElement("_id")]
@@ -18,6 +16,9 @@ namespace ControleHora_WebAPI.Models
 
         [BsonElement("position")]
         public Position Position { get; set; }
+
+        [BsonElement("role")]
+        public Role Role { get; set; }
 
         //Defines a nullable date
         [BsonElement("date_joined")]
@@ -34,10 +35,11 @@ namespace ControleHora_WebAPI.Models
         {
             HourBank = 0;
         }
-        public Employee(string name, Position pos, DateTime dateJoined, HoursAmount weekHours)
+        public Employee(string name, Position pos, Role role, DateTime dateJoined, HoursAmount weekHours)
         {
             Name = name;
             Position = pos;
+            Role = role;
             DateJoined = dateJoined;
             WeekHours = weekHours;
             HourBank = 0;
@@ -45,7 +47,7 @@ namespace ControleHora_WebAPI.Models
 
         public override string ToString()
         {
-            string str = $"ID: {ID}, Name: {Name}, Position: {Position},"
+            string str = $"ID: {ID}, Name: {Name}, Position: {Position}, Role: {Role}, "
                 + $"DateJoined: {DateJoined}, WeekHours: {WeekHours}, HourBank: {HourBank}";
             return str;
         }

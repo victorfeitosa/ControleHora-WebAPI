@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using ControleHora_WebAPI.Models;
-using Newtonsoft.Json;
 using System;
 using MongoDB.Bson.Serialization;
 
@@ -14,7 +13,7 @@ namespace ControleHora_WebAPI.Controllers
     {
         public static string ConnectionString = "mongodb://localhost:27017";
         public static MongoClient Client = new MongoClient(ConnectionString);
-        public static IMongoDatabase DB = Client.GetDatabase("nettest");
+        public static IMongoDatabase DB = Client.GetDatabase("controle_horas");
 
 
         [HttpGet]
@@ -35,7 +34,53 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
-                throw new Exception();
+            }
+            return employees;
+        }
+
+        [HttpGet("{id}")]
+        public IEnumerable<Employee> Get(string id)
+        {
+            List<Employee> employees = new List<Employee>();
+            var objId = ObjectId.Parse(id);
+            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            try
+            {
+                var filter = Builders<Employee>.Filter;
+                employees = collection.Find(x => x.ID == objId).ToList();
+                if (employees.Count <= 0)
+                {
+                    throw new Exception("Error, couldn't find any documents.");
+                }
+
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error on listing employees");
+                System.Console.WriteLine(e);
+            }
+            return employees;
+        }
+
+        [HttpGet("{name}")]
+        public IEnumerable<Employee> GetName(string name)
+        {
+            List<Employee> employees = new List<Employee>();
+            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            try
+            {
+                var filter = Builders<Employee>.Filter;
+                employees = collection.Find(x => x.Name == name).ToList();
+                if (employees.Count <= 0)
+                {
+                    throw new Exception("Error, couldn't find any documents.");
+                }
+
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error on listing employees");
+                System.Console.WriteLine(e);
             }
             return employees;
         }
@@ -45,6 +90,7 @@ namespace ControleHora_WebAPI.Controllers
         {
             var collection = DB.GetCollection<Employee>("employees");
             var employee = BsonSerializer.Deserialize<Employee>(employeeJson);
+
             System.Console.WriteLine($"Employee JSON\n\t{employeeJson}");
             System.Console.WriteLine($"Employee Class\n\t{employee.ToString()}");
 
@@ -84,6 +130,25 @@ namespace ControleHora_WebAPI.Controllers
                 throw new Exception();
             }
 
+            return RedirectToAction("Get");
+        }
+
+        [HttpDelete("id")]
+        public IActionResult Delete(string id)
+        {
+            List<Employee> employees = new List<Employee>();
+            var objId = ObjectId.Parse(id);
+            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            try
+            {
+                var filter = Builders<Employee>.Filter;
+                collection.DeleteOne(x => x.ID == objId);
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error on deleting employee");
+                System.Console.WriteLine(e);
+            }
             return RedirectToAction("Get");
         }
     }

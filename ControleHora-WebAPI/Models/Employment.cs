@@ -2,12 +2,17 @@ namespace ControleHora_WebAPI.Models
 {
     public enum Position
     {
-        JuniorDeveloper = 0,
-        SeniorDeveloper = 1,
-        Tester = 2,
-        TechnicalLead = 3,
-        ProjectLead = 4,
-        ProjectManager = 5
+        Junior = 0,
+        Experienced = 1,
+        Senior = 2
+    }
+    public enum Role
+    {
+        Developer = 0,
+        Tester = 1,
+        TechnicalLeader = 2,
+        ProjectLeader = 3,
+        ProjectManager = 4
     }
 
     public enum HoursAmount

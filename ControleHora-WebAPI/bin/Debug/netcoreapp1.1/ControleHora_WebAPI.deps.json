@@ -21,7 +21,7 @@
   },
   "targets": {
     ".NETCoreApp,Version=v1.1": {
-      "ControleHora_WebAPI/1.0.0": {
+      "controlehora_webapi/1.0.0": {
         "dependencies": {
           "Microsoft.ApplicationInsights.AspNetCore": "2.0.0",
           "Microsoft.AspNetCore": "1.1.1",
@@ -3066,7 +3066,7 @@
     }
   },
   "libraries": {
-    "ControleHora_WebAPI/1.0.0": {
+    "controlehora_webapi/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
