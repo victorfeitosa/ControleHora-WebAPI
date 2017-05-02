@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -30,6 +31,8 @@ namespace ControleHora_WebAPI.Models
 
         [BsonElement("hour_bank")]
         public double HourBank { get; set; }
+        [BsonElement("hours")]
+        public List<HourEntry> Entries { get; set; }
 
         public Employee()
         {
@@ -43,6 +46,11 @@ namespace ControleHora_WebAPI.Models
             DateJoined = dateJoined;
             WeekHours = weekHours;
             HourBank = 0;
+        }
+
+        public void addHourEntry(DateTime date, int amount, string reason)
+        {
+            Entries.Add(new HourEntry(ID, date, amount, reason));
         }
 
         public override string ToString()

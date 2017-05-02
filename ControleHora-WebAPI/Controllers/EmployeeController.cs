@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using ControleHora_WebAPI.Models;
 using System;
-using MongoDB.Bson.Serialization;
 
 namespace ControleHora_WebAPI.Controllers
 {
@@ -35,14 +35,24 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
             }
+            foreach (Employee employee in employees)
+            {
+                System.Console.WriteLine("List of employees:\n" + employee.ToString());
+            }
+
             return employees;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("id/{id}")]
         public IEnumerable<Employee> Get(string id)
         {
-            List<Employee> employees = new List<Employee>();
+            if(id == null)
+            {
+                throw new Exception($"Error, couldn't find object id parameter.");
+            }
+            System.Console.WriteLine("ObjectId: " + id);
             var objId = ObjectId.Parse(id);
+            List<Employee> employees = new List<Employee>();
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
             try
             {
@@ -50,7 +60,7 @@ namespace ControleHora_WebAPI.Controllers
                 employees = collection.Find(x => x.ID == objId).ToList();
                 if (employees.Count <= 0)
                 {
-                    throw new Exception("Error, couldn't find any documents.");
+                    throw new Exception($"Error, couldn't find any documents with guid ${objId}.");
                 }
 
             }

@@ -7,7 +7,7 @@
         {
             "taskName": "build",
             "args": [
-                "${workspaceRoot}/ControleHora_WebAPI.csproj"
+                "${workspaceRoot}/ControleHora-WebAPI/ControleHora_WebAPI.csproj"
             ],
             "isBuildCommand": true,
             "problemMatcher": "$msCompile"
