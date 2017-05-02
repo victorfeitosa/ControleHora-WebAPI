@@ -1,7 +1,7 @@
 {
   "runtimeOptions": {
     "additionalProbingPaths": [
-      "C:\\Users\\Victor Feitosa\\.nuget\\packages"
+      "/home/vf-intrapoint/.nuget/packages"
     ]
   }
 }
