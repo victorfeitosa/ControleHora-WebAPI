@@ -27,7 +27,7 @@ namespace ControleHora_WebAPI.Models
 
 
         [BsonElement("week_hours")]
-        public HoursAmount WeekHours { get; set; }
+        public HoursWeek WeekHours { get; set; }
 
         [BsonElement("hour_bank")]
         public double HourBank { get; set; }
@@ -38,7 +38,7 @@ namespace ControleHora_WebAPI.Models
         {
             HourBank = 0;
         }
-        public Employee(string name, Position pos, Role role, DateTime dateJoined, HoursAmount weekHours)
+        public Employee(string name, Position pos, Role role, DateTime dateJoined, HoursWeek weekHours)
         {
             Name = name;
             Position = pos;
