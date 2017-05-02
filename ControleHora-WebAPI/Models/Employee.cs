@@ -61,3 +61,41 @@ namespace ControleHora_WebAPI.Models
         }
     }
 }
+
+//Sample Employee:
+// {
+// id: {
+// timestamp: 1493749201,
+// machine: 6866385,
+// pid: -7383,
+// increment: 2203140,
+// creationTime: "2017-05-02T18:20:01Z"
+// },
+// name: "Jow",
+// position: 0,
+// role: 0,
+// dateJoined: "2017-05-02T18:20:01.588Z",
+// weekHours: 40,
+// hourBank: 0,
+// entries: [
+// {
+// id: {
+// timestamp: 0,
+// machine: 0,
+// pid: 0,
+// increment: 0,
+// creationTime: "1970-01-01T00:00:00Z"
+// },
+// employeeId: {
+// timestamp: 1493749201,
+// machine: 6866385,
+// pid: -7383,
+// increment: 2203140,
+// creationTime: "2017-05-02T18:20:01Z"
+// },
+// dateRegistered: "2017-05-02T18:24:34.548Z",
+// reason: "Overslept",
+// amount: -4
+// }
+// ]
+// }
