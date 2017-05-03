@@ -62,21 +62,3 @@ namespace ControleHora_WebAPI.Models
     }
 }
 
-//Sample Employee:
-// {
-// 	"_id" : ObjectId("5908cdd168c5d1e329219e04"),
-// 	"name" : "Jow",
-// 	"position" : 0,
-// 	"role" : 0,
-// 	"date_joined" : ISODate("2017-05-02T18:20:01.588Z"),
-// 	"week_hours" : 40,
-// 	"hour_bank" : 0,
-// 	"hours" : [
-// 		{
-// 			"employee_id" : ObjectId("5908cdd168c5d1e329219e04"),
-// 			"date" : ISODate("2017-05-02T18:24:34.548Z"),
-// 			"reason" : "Overslept",
-// 			"amount" : -4
-// 		}
-// 	]
-// }
