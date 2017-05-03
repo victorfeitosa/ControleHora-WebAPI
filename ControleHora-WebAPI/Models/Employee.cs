@@ -8,8 +8,8 @@ namespace ControleHora_WebAPI.Models
 {
     public class Employee
     {
-        [BsonElement("_id")]
         [BsonId]
+        [BsonElement("_id")]
         public ObjectId ID { get; set; }
 
         [BsonElement("name")]

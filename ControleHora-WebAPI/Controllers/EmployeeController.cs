@@ -5,6 +5,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using ControleHora_WebAPI.Models;
 using System;
+using System.Linq;
+using MongoDB.Bson.IO;
 
 namespace ControleHora_WebAPI.Controllers
 {
@@ -17,7 +19,7 @@ namespace ControleHora_WebAPI.Controllers
 
 
         [HttpGet]
-        public IEnumerable<Employee> Get()
+        public string Get()
         {
             List<Employee> employees = new List<Employee>();
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
@@ -35,27 +37,21 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
             }
-            foreach (Employee employee in employees)
-            {
-                System.Console.WriteLine("List of employees:\n" + employee.ToString());
-            }
-
-            return employees;
+            return employees.ToJson();
         }
 
         [HttpGet("id/{id}")]
-        public IEnumerable<Employee> Get(string id)
+        public string Get(string id)
         {
-            if(id == null)
+            if (id == null)
             {
                 throw new Exception($"Error, couldn't find object id parameter.");
             }
-            System.Console.WriteLine("ObjectId: " + id);
-            var objId = ObjectId.Parse(id);
             List<Employee> employees = new List<Employee>();
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
             try
             {
+                var objId = ObjectId.Parse(id);
                 var filter = Builders<Employee>.Filter;
                 employees = collection.Find(x => x.ID == objId).ToList();
                 if (employees.Count <= 0)
@@ -69,11 +65,11 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
             }
-            return employees;
+            return employees.ToJson();
         }
 
-        [HttpGet("{name}")]
-        public IEnumerable<Employee> GetName(string name)
+        [HttpGet("employee/{name}")]
+        public string GetName(string name)
         {
             List<Employee> employees = new List<Employee>();
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
@@ -92,7 +88,46 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
             }
-            return employees;
+            return employees.ToJson();
+        }
+
+        [HttpGet("entries")]
+        public IEnumerable<HourEntry> GetEntries()
+        {
+            List<HourEntry> entries = new List<HourEntry>();
+            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            try
+            {
+                var employees = collection.Find(new BsonDocument()).ToList();
+                if (employees.Count <= 0)
+                {
+                    throw new Exception("Error, couldn't find any documents.");
+                }
+                foreach (var employee in employees)
+                {
+                    if (employee.Entries.Count > 0)
+                    {
+                        foreach (var hour_entry in employee.Entries)
+                        {
+                            entries.Add(hour_entry);
+                        }
+                    }
+                }
+
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error on listing hour entries");
+                System.Console.WriteLine(e);
+            }
+
+            List<HourEntry> ordered = entries.OrderBy(o => o.DateRegistered).ToList();
+            foreach (var entry in ordered)
+            {
+                System.Console.WriteLine(entry.ToJson());
+            }
+            
+            return ordered;
         }
 
         [HttpPost]

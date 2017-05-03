@@ -1,14 +1,15 @@
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace ControleHora_WebAPI.Models
 {
     public class HourEntry
     {
-        [BsonElement("_id")]
-        [BsonId]
-        public ObjectId ID { get; set; }
+        // [BsonElement("_id")]
+        // [BsonId]
+        // public ObjectId ID { get; set; }
         [BsonElementAttribute("employee_id")]
         public ObjectId EmployeeId { get; set; }
         [BsonElement("date")]
@@ -20,7 +21,6 @@ namespace ControleHora_WebAPI.Models
 
         public HourEntry(ObjectId employee, DateTime date, int amount, string reason = "")
         {
-            ID = new ObjectId();
             EmployeeId = employee;
             DateRegistered = date;
             Amount = amount;
@@ -30,7 +30,7 @@ namespace ControleHora_WebAPI.Models
         public override string ToString()
         {
             return $"Employee: {EmployeeId} | Date: {DateRegistered} | Amount: {Amount}" +
-                "\nReason: {Reason}";
+                $"\nReason: {Reason}";
         }
     }
 
