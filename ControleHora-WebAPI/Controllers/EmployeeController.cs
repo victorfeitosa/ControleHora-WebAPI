@@ -91,29 +91,38 @@ namespace ControleHora_WebAPI.Controllers
             return employees.ToJson();
         }
 
-        [HttpGet("entries")]
-        public IEnumerable<HourEntry> GetEntries()
+        [HttpGet("entries/{id?}")]
+        public string GetEntries(string id)
         {
-            List<HourEntry> entries = new List<HourEntry>();
-            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            // var entries = new List<Employee>();
+            var collection = DB.GetCollection<Employee>("employees");
+            var entries = new List<BsonDocument>();
+
             try
             {
-                var employees = collection.Find(new BsonDocument()).ToList();
-                if (employees.Count <= 0)
+                if (id == null)
                 {
-                    throw new Exception("Error, couldn't find any documents.");
+                    entries = collection.Aggregate()
+                                .Unwind("hours")
+                                .Group("{_id: '', hours: {$addToSet: {employee_id: '$hours.employee_id'" + 
+                                                "employee: '$name'" +
+                                                "date: '$hours.date'," +
+                                                "reason: '$hours.reason'," + 
+                                                "amount: '$hours.amount' }}}")
+                                .ToList();
                 }
-                foreach (var employee in employees)
+                else
                 {
-                    if (employee.Entries.Count > 0)
-                    {
-                        foreach (var hour_entry in employee.Entries)
-                        {
-                            entries.Add(hour_entry);
-                        }
-                    }
+                    entries = collection.Aggregate()
+                                .Match(x => x.ID == ObjectId.Parse(id))
+                                .Unwind("hours")
+                                .Group("{_id: null, hours: {$addToSet: {employee_id: '$hours.employee_id'" + 
+                                                "employee: '$name'" +
+                                                "date: '$hours.date'," +
+                                                "reason: '$hours.reason'," + 
+                                                "amount: '$hours.amount' }}}")
+                                .ToList();
                 }
-
             }
             catch (System.Exception e)
             {
@@ -121,13 +130,7 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine(e);
             }
 
-            List<HourEntry> ordered = entries.OrderBy(o => o.DateRegistered).ToList();
-            foreach (var entry in ordered)
-            {
-                System.Console.WriteLine(entry.ToJson());
-            }
-            
-            return ordered;
+            return entries.ToJson();
         }
 
         [HttpPost]
