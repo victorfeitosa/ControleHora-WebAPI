@@ -40,7 +40,7 @@ namespace ControleHora_WebAPI.Controllers
             return employees.ToJson();
         }
 
-        [HttpGet("id/{id}")]
+        [HttpGet("{id}")]
         public string Get(string id)
         {
             if (id == null)
@@ -104,10 +104,10 @@ namespace ControleHora_WebAPI.Controllers
                 {
                     entries = collection.Aggregate()
                                 .Unwind("hours")
-                                .Group("{_id: '', hours: {$addToSet: {employee_id: '$hours.employee_id'" + 
+                                .Group("{_id: '', hours: {$addToSet: {employee_id: '$hours.employee_id'" +
                                                 "employee: '$name'" +
                                                 "date: '$hours.date'," +
-                                                "reason: '$hours.reason'," + 
+                                                "reason: '$hours.reason'," +
                                                 "amount: '$hours.amount' }}}")
                                 .ToList();
                 }
@@ -116,10 +116,10 @@ namespace ControleHora_WebAPI.Controllers
                     entries = collection.Aggregate()
                                 .Match(x => x.ID == ObjectId.Parse(id))
                                 .Unwind("hours")
-                                .Group("{_id: null, hours: {$addToSet: {employee_id: '$hours.employee_id'" + 
+                                .Group("{_id: null, hours: {$addToSet: {employee_id: '$hours.employee_id'" +
                                                 "employee: '$name'" +
                                                 "date: '$hours.date'," +
-                                                "reason: '$hours.reason'," + 
+                                                "reason: '$hours.reason'," +
                                                 "amount: '$hours.amount' }}}")
                                 .ToList();
                 }
@@ -181,7 +181,7 @@ namespace ControleHora_WebAPI.Controllers
             return RedirectToAction("Get");
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("user/id")]
         public IActionResult Delete(string id)
         {
             List<Employee> employees = new List<Employee>();
