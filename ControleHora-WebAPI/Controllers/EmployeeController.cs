@@ -7,6 +7,7 @@ using ControleHora_WebAPI.Models;
 using System;
 using System.Linq;
 using MongoDB.Bson.IO;
+using Newtonsoft.Json.Linq;
 
 namespace ControleHora_WebAPI.Controllers
 {
@@ -40,7 +41,7 @@ namespace ControleHora_WebAPI.Controllers
             return employees.ToJson();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("id/{id}")]
         public string Get(string id)
         {
             if (id == null)
@@ -56,7 +57,7 @@ namespace ControleHora_WebAPI.Controllers
                 employees = collection.Find(x => x.ID == objId).ToList();
                 if (employees.Count <= 0)
                 {
-                    throw new Exception($"Error, couldn't find any documents with guid ${objId}.");
+                    throw new Exception($"Error, couldn't find any documents with guid {objId}.");
                 }
 
             }
@@ -68,7 +69,7 @@ namespace ControleHora_WebAPI.Controllers
             return employees.ToJson();
         }
 
-        [HttpGet("employee/{name}")]
+        [HttpGet("{name}")]
         public string GetName(string name)
         {
             List<Employee> employees = new List<Employee>();
@@ -134,13 +135,12 @@ namespace ControleHora_WebAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] string employeeJson)
+        public IActionResult Post([FromBody] JObject employeeJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
-            var employee = BsonSerializer.Deserialize<Employee>(employeeJson);
 
-            System.Console.WriteLine($"Employee JSON\n\t{employeeJson}");
-            System.Console.WriteLine($"Employee Class\n\t{employee.ToString()}");
+            //deserializes JSON received from the DB naming convention
+            var employee = BsonSerializer.Deserialize<Employee>(employeeJson.ToString());
 
             if (employee.DateJoined == null)
             {
@@ -150,6 +150,7 @@ namespace ControleHora_WebAPI.Controllers
             try
             {
                 collection.InsertOne(employee);
+                System.Console.WriteLine($"Inserted employee:\n{employee.ToString()}");
             }
             catch (System.Exception e)
             {
@@ -157,7 +158,7 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine(e);
                 throw new Exception();
             }
-            return RedirectToAction("Get");
+            return RedirectToAction("Get", new {id=employee.ID.ToString()});
         }
 
         [HttpPut]

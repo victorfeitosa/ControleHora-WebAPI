@@ -6,6 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ControleHora_WebAPI.Models
 {
+    [BsonIgnoreExtraElements]
     public class Employee
     {
         [BsonId]
