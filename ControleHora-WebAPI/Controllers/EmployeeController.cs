@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson.IO;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace ControleHora_WebAPI.Controllers
 {
@@ -18,7 +19,8 @@ namespace ControleHora_WebAPI.Controllers
         public static MongoClient Client = new MongoClient(ConnectionString);
         public static IMongoDatabase DB = Client.GetDatabase("controle_horas");
 
-
+        #region Gets
+        //Gets
         [HttpGet]
         public string Get()
         {
@@ -38,6 +40,7 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
             }
+
             return employees.ToJson();
         }
 
@@ -53,7 +56,6 @@ namespace ControleHora_WebAPI.Controllers
             try
             {
                 var objId = ObjectId.Parse(id);
-                var filter = Builders<Employee>.Filter;
                 employees = collection.Find(x => x.ID == objId).ToList();
                 if (employees.Count <= 0)
                 {
@@ -76,7 +78,6 @@ namespace ControleHora_WebAPI.Controllers
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
             try
             {
-                var filter = Builders<Employee>.Filter;
                 employees = collection.Find(x => x.Name == name).ToList();
                 if (employees.Count <= 0)
                 {
@@ -110,6 +111,7 @@ namespace ControleHora_WebAPI.Controllers
                                                 "date: '$hours.date'," +
                                                 "reason: '$hours.reason'," +
                                                 "amount: '$hours.amount' }}}")
+                                .Project("{_id: 0, hours: 1}")
                                 .ToList();
                 }
                 else
@@ -122,6 +124,7 @@ namespace ControleHora_WebAPI.Controllers
                                                 "date: '$hours.date'," +
                                                 "reason: '$hours.reason'," +
                                                 "amount: '$hours.amount' }}}")
+                                .Project("{_id: 0, hours: 1}")
                                 .ToList();
                 }
             }
@@ -134,8 +137,10 @@ namespace ControleHora_WebAPI.Controllers
             return entries.ToJson();
         }
 
+        #endregion
+        //Posts
         [HttpPost]
-        public IActionResult Post([FromBody] JObject employeeJson)
+        public IActionResult PostEmployee([FromBody] JObject employeeJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
 
@@ -158,8 +163,47 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine(e);
                 throw new Exception();
             }
-            return RedirectToAction("Get", new {id=employee.ID.ToString()});
+            return RedirectToAction("Get", new { id = employee.ID.ToString() });
         }
+
+        [HttpPost("addhour")]
+        public IActionResult PostHourEntry([FromBody] JObject hourJson)
+        {
+            var collection = DB.GetCollection<Employee>("employees");
+            if (hourJson.Property("employee_id") == null)
+            {
+                throw new Exception("Error, employee id is not valid");
+            }
+
+            try
+            {
+                var hourEntry = BsonSerializer.Deserialize<HourEntry>(hourJson.ToString());
+                var employeeObjId = hourEntry.EmployeeId;
+                if (hourEntry.EmployeeName == null)
+                {
+                    hourEntry.EmployeeName = collection.Find(x => x.ID == employeeObjId)
+                                                .First().Name;
+                }
+                var employee = collection.FindOneAndUpdate<Employee>(x => x.ID == employeeObjId,
+                                Builders<Employee>.Update
+                                .AddToSet(x => x.Entries, hourEntry)
+                                .Inc(x => x.HourBank, hourEntry.Amount));
+            }
+            catch (System.FormatException e)
+            {
+                System.Console.WriteLine("Error, JSON Format not recognized!");
+                System.Console.WriteLine(e);
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error, could not insert Hour Entry into the database.");
+                System.Console.WriteLine(e);
+
+            }
+
+            return RedirectToAction("Get", new {id = hourJson.Property("employee_id").Value});
+        }
+        //TODO: post to insert hours into a addHour/{id}
 
         [HttpPut]
         public IActionResult Put([FromBody] string employeeJson)

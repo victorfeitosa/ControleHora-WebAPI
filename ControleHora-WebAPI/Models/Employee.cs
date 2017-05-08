@@ -47,6 +47,7 @@ namespace ControleHora_WebAPI.Models
             DateJoined = dateJoined;
             WeekHours = weekHours;
             HourBank = 0;
+            Entries = new List<HourEntry>();
         }
 
         public void addHourEntry(DateTime date, int amount, string reason)
