@@ -11,6 +11,7 @@ namespace ControleHora_WebAPI.Models
     {
         [BsonId]
         [BsonElement("_id")]
+        [BsonRepresentation(BsonType.String)]
         public ObjectId ID { get; set; }
 
         [BsonElement("name")]
@@ -24,6 +25,7 @@ namespace ControleHora_WebAPI.Models
 
         //Defines a nullable date
         [BsonElement("date_joined")]
+        [BsonRepresentation(BsonType.String)]
         public DateTime? DateJoined { get; set; }
 
 
@@ -32,6 +34,7 @@ namespace ControleHora_WebAPI.Models
 
         [BsonElement("hour_bank")]
         public double HourBank { get; set; }
+
         [BsonElement("hours")]
         public List<HourEntry> Entries { get; set; }
 

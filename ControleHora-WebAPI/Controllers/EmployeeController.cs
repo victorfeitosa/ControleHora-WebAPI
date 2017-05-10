@@ -19,8 +19,8 @@ namespace ControleHora_WebAPI.Controllers
         public static MongoClient Client = new MongoClient(ConnectionString);
         public static IMongoDatabase DB = Client.GetDatabase("controle_horas");
 
-        #region Gets
-        //Gets
+#region Employee CRUD
+        //RETRIEVE
         [HttpGet]
         public string Get()
         {
@@ -72,7 +72,7 @@ namespace ControleHora_WebAPI.Controllers
         }
 
         [HttpGet("{name}")]
-        public string GetName(string name)
+        public string GetByName(string name)
         {
             List<Employee> employees = new List<Employee>();
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
@@ -93,6 +93,86 @@ namespace ControleHora_WebAPI.Controllers
             return employees.ToJson();
         }
 
+        //CREATE
+        [HttpPost]
+        public IActionResult Post([FromBody] JObject employeeJson)
+        {
+            var collection = DB.GetCollection<Employee>("employees");
+
+            //deserializes JSON received from the DB naming convention
+            var employee = BsonSerializer.Deserialize<Employee>(employeeJson.ToString());
+
+            //checks wether data is ok
+            if(employee.Name == null || employee.WeekHours == 0)
+            {
+                System.Console.WriteLine("Error, cannot insert employee without required parameters");
+                return RedirectToAction("Get");
+            }
+            //Correct null properties
+            if (employee.DateJoined == null)
+            {
+                employee.DateJoined = DateTime.Now;
+            }
+            if(employee.Entries == null)
+            {
+                employee.Entries = new List<HourEntry>();
+            }
+            
+            //inserts document
+            try
+            {
+                collection.InsertOne(employee);
+                System.Console.WriteLine($"Inserted employee:\n{employee.ToString()}");
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error, could not insert Employee into the database.");
+                System.Console.WriteLine(e);
+                throw new Exception();
+            }
+            return RedirectToAction("Get", new { id = employee.ID.ToString() });
+        }
+
+        //UPDATE
+        [HttpPut]
+        public IActionResult Update([FromBody] JObject employeeJson)
+        {
+            var collection = DB.GetCollection<Employee>("employees");
+            try
+            {
+                var employee = BsonSerializer.Deserialize<Employee>(employeeJson.ToString());
+                collection.ReplaceOne(x => x.ID == employee.ID, employee);
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error, could not update Employee in the database.");
+                System.Console.WriteLine(e);
+                throw new Exception();
+            }
+            return RedirectToAction("Get", new { id = employeeJson.Property("_id").Value.ToString() });
+        }
+
+        //DELETE
+        [HttpDelete("id/{id}")]
+        public IActionResult Delete(string id)
+        {
+            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            try
+            {
+                collection.DeleteOne(x => x.ID == ObjectId.Parse(id));
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error on deleting employee");
+                System.Console.WriteLine(e);
+            }
+            return RedirectToAction("Get");
+        }
+
+#endregion
+
+#region Hour Entry CRUD
+        //RETRIEVE
         [HttpGet("entries/{id?}")]
         public string GetEntries(string id)
         {
@@ -137,37 +217,28 @@ namespace ControleHora_WebAPI.Controllers
             return entries.ToJson();
         }
 
-        #endregion
-        //Posts
-        [HttpPost]
-        public IActionResult PostEmployee([FromBody] JObject employeeJson)
+        [HttpGet("entries/employee/{name}")]
+        public IActionResult GetEntriesByEmployeeName(string employeeName)
         {
             var collection = DB.GetCollection<Employee>("employees");
 
-            //deserializes JSON received from the DB naming convention
-            var employee = BsonSerializer.Deserialize<Employee>(employeeJson.ToString());
-
-            if (employee.DateJoined == null)
-            {
-                employee.DateJoined = DateTime.Now;
-            }
-
             try
             {
-                collection.InsertOne(employee);
-                System.Console.WriteLine($"Inserted employee:\n{employee.ToString()}");
+                var employee = collection.Find<Employee>(x => x.Name == employeeName).First();
+                return RedirectToAction("GetEntries", new {id = employee.ID.ToString()});
             }
             catch (System.Exception e)
             {
-                System.Console.WriteLine("Error, could not insert Employee into the database.");
+                System.Console.WriteLine("Error on listing hour entries");
                 System.Console.WriteLine(e);
-                throw new Exception();
             }
-            return RedirectToAction("Get", new { id = employee.ID.ToString() });
+
+            return RedirectToAction("Get");
         }
 
+        //CREATE
         [HttpPost("addhour")]
-        public IActionResult PostHourEntry([FromBody] JObject hourJson)
+        public IActionResult PostEntry([FromBody] JObject hourJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
             if (hourJson.Property("employee_id") == null)
@@ -201,48 +272,39 @@ namespace ControleHora_WebAPI.Controllers
 
             }
 
-            return RedirectToAction("Get", new {id = hourJson.Property("employee_id").Value});
+            return RedirectToAction("Get", new { id = hourJson.Property("employee_id").Value });
         }
-        //TODO: post to insert hours into a addHour/{id}
 
-        [HttpPut]
-        public IActionResult Put([FromBody] string employeeJson)
+        //UPDATE
+        [HttpPut("entries/{entry}")]
+        public IActionResult UpdateEntry(JObject entryJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
-            var employee = BsonSerializer.Deserialize<Employee>(employeeJson);
-            System.Console.WriteLine($"Employee Class\n\t{employee.ToString()}");
-
             try
             {
-                collection.ReplaceOne(Builders<Employee>.Filter.Eq("_id", employee.ID), employee);
+                var entry = BsonSerializer.Deserialize<HourEntry>(entryJson.ToString());
+                var employee = collection.FindOneAndUpdate<Employee>(x => x.ID == entry.EmployeeId,
+                                Builders<Employee>.Update.Set(x => x.Entries.Find(e => e.ID == entry.ID),
+                                entry));
             }
-            catch (System.Exception e)
+            catch(System.Exception e)
             {
-                System.Console.WriteLine("Error, could not update Employee in the database.");
+                System.Console.WriteLine("Error, could not update the entry");
                 System.Console.WriteLine(e);
-                throw new Exception();
-            }
 
-            return RedirectToAction("Get");
+                return RedirectToAction("Get");
+            }
+            return RedirectToAction("Get", new {id = entryJson.Property("employee_id").Value.ToString()});
         }
 
-        [HttpDelete("user/id")]
-        public IActionResult Delete(string id)
+        //DELETE
+        //TODO: implement this
+        [HttpDelete("entries/{id}")]
+        public IActionResult DeleteEntry(string entryId)
         {
-            List<Employee> employees = new List<Employee>();
-            var objId = ObjectId.Parse(id);
-            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
-            try
-            {
-                var filter = Builders<Employee>.Filter;
-                collection.DeleteOne(x => x.ID == objId);
-            }
-            catch (System.Exception e)
-            {
-                System.Console.WriteLine("Error on deleting employee");
-                System.Console.WriteLine(e);
-            }
             return RedirectToAction("Get");
         }
+
+#endregion
     }
 }

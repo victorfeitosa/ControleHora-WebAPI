@@ -7,9 +7,10 @@ namespace ControleHora_WebAPI.Models
 {
     public class HourEntry
     {
-        // [BsonElement("_id")]
-        // [BsonId]
-        // public ObjectId ID { get; set; }
+        [BsonElement("_id")]
+        [BsonId]
+        public ObjectId ID { get; set; }
+        
         [BsonElementAttribute("employee_id")]
         public ObjectId? EmployeeId { get; set; }
 
