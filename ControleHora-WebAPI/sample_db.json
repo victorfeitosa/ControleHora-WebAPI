@@ -1,60 +1,50 @@
-/* 1 */
 {
-    "_id": ObjectId("5908cdd168c5d1e329219e04"),
-    "name": "Jow",
-    "position": 0.0,
-    "role": 0.0,
-    "date_joined": ISODate("2017-05-02T18:20:01.588Z"),
-    "week_hours": 40.0,
-    "hour_bank": 0.0,
-    "hours": [
-        {
-            "employee_id": ObjectId("5908cdd168c5d1e329219e04"),
-            "date": ISODate("2017-05-02T18:24:34.548Z"),
-            "reason": "Overslept",
-            "amount": -4.0
-        },
-        {
-            "employee_id": ObjectId("5908cdd168c5d1e329219e04"),
-            "date": ISODate("2017-05-03T14:46:19.072Z"),
-            "reason": "I needed to go to the hospital",
-            "amount": -4.0
-        },
-        {
-            "employee_id": ObjectId("5908cdd168c5d1e329219e04"),
-            "date": ISODate("2017-05-03T14:47:34.956Z"),
-            "reason": "Taking some extra hours",
-            "amount": 2.0
-        }
-    ]
+    "_id": "59132b7872775a6e74bcc034",
+    "name": "MahelAlbudh",
+    "position": 0,
+    "role": 1,
+    "date_joined": "2017-05-10T12:02:16.337351-03:00",
+    "week_hours": 30,
+    "hour_bank": 0,
+    "hours": []
 }
-/* 2 */
 {
-    "_id": ObjectId("5909ee85396240e494cbc266"),
-    "name": "Kalango",
-    "position": 0.0,
-    "role": 0.0,
-    "date_joined": ISODate("2017-05-02T18:20:01.588Z"),
-    "week_hours": 30.0,
-    "hour_bank": 0.0,
-    "hours": [
-        {
-            "employee_id": ObjectId("5909ee85396240e494cbc266"),
-            "date": ISODate("2017-05-02T18:24:34.548Z"),
-            "reason": "Taking some extra time",
-            "amount": 4.0
-        },
-        {
-            "employee_id": ObjectId("5909ee85396240e494cbc266"),
-            "date": ISODate("2017-06-03T14:46:19.072Z"),
-            "reason": "I needed to go to the hospital",
-            "amount": -4.0
-        },
-        {
-            "employee_id": ObjectId("5909ee85396240e494cbc266"),
-            "date": ISODate("2017-01-03T14:47:34.956Z"),
-            "reason": "Taking some extra hours without pooping",
-            "amount": 2.0
-        }
-    ]
+    "_id": "59132ba172775a6e74bcc035",
+    "name": "Victor",
+    "position": 1,
+    "role": 1,
+    "date_joined": "2017-05-10T12:02:57.477369-03:00",
+    "week_hours": 40,
+    "hour_bank": 0,
+    "hours": []
+}
+{
+    "_id": "59132bac72775a6e74bcc036",
+    "name": "Harold",
+    "position": 0,
+    "role": 1,
+    "date_joined": "2017-05-10T12:03:08.422263-03:00",
+    "week_hours": 30,
+    "hour_bank": 0,
+    "hours": []
+}
+{
+    "_id": "59132bb772775a6e74bcc037",
+    "name": "Ernest",
+    "position": 0,
+    "role": 1,
+    "date_joined": "2017-05-10T12:03:19.968087-03:00",
+    "week_hours": 30,
+    "hour_bank": 0,
+    "hours": []
+}
+{
+    "_id": "59132bc572775a6e74bcc038",
+    "name": "Joanne",
+    "position": 1,
+    "role": 2,
+    "date_joined": "2017-05-10T12:03:33.293895-03:00",
+    "week_hours": 40,
+    "hour_bank": 0,
+    "hours": []
 }
