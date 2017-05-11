@@ -7,18 +7,32 @@ namespace ControleHora_WebAPI.Models
 {
     public class HourEntry
     {
-        [BsonElement("_id")]
+        /**
+        Example JSON
+        {
+            "_id": string,
+            "employee_id": string,
+            "employee": string,
+            "date": string,
+            "reason": string,
+            "amount": int
+        }
+         */
         [BsonId]
+        [BsonElement("_id")]
+        [BsonRepresentation(BsonType.String)]
         public ObjectId ID { get; set; }
         
         [BsonElementAttribute("employee_id")]
+        [BsonRepresentation(BsonType.String)]
         public ObjectId? EmployeeId { get; set; }
 
         [BsonElement("employee")]
         public string EmployeeName;
 
         [BsonElement("date")]
-        public DateTime DateRegistered { get; set; }
+        [BsonRepresentation(BsonType.String)]
+        public DateTime? DateRegistered { get; set; }
 
         [BsonElement("reason")]
         public string Reason { get; set; }
@@ -37,7 +51,7 @@ namespace ControleHora_WebAPI.Models
 
         public override string ToString()
         {
-            return $"Employee: {EmployeeId} | Date: {DateRegistered} | Amount: {Amount}" +
+            return $"Employee: {EmployeeId} | Date: {DateRegistered.ToString()} | Amount: {Amount}" +
                 $"\nReason: {Reason}";
         }
     }

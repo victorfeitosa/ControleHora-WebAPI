@@ -199,7 +199,7 @@ namespace ControleHora_WebAPI.Controllers
                     entries = collection.Aggregate()
                                 .Match(x => x.ID == ObjectId.Parse(id))
                                 .Unwind("hours")
-                                .Group("{_id: null, hours: {$addToSet: {employee_id: '$hours.employee_id'" +
+                                .Group("{_id: '', hours: {$addToSet: {employee_id: '$hours.employee_id'" +
                                                 "employee: '$name'" +
                                                 "date: '$hours.date'," +
                                                 "reason: '$hours.reason'," +
@@ -237,7 +237,7 @@ namespace ControleHora_WebAPI.Controllers
         }
 
         //CREATE
-        [HttpPost("addhour")]
+        [HttpPost("entries/add")]
         public IActionResult PostEntry([FromBody] JObject hourJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
@@ -250,10 +250,20 @@ namespace ControleHora_WebAPI.Controllers
             {
                 var hourEntry = BsonSerializer.Deserialize<HourEntry>(hourJson.ToString());
                 var employeeObjId = hourEntry.EmployeeId;
+                System.Console.WriteLine("Hour Entry: " + hourEntry.ToString());
                 if (hourEntry.EmployeeName == null)
                 {
-                    hourEntry.EmployeeName = collection.Find(x => x.ID == employeeObjId)
+                    hourEntry.EmployeeName = collection
+                                                .Find(x => x.ID == employeeObjId)
                                                 .First().Name;
+                }
+                if (hourEntry.ID == null || hourEntry.ID == ObjectId.Empty)
+                {
+                    hourEntry.ID = ObjectId.GenerateNewId(DateTime.UtcNow);
+                }
+                if (hourEntry.DateRegistered == null)
+                {
+                    hourEntry.DateRegistered = DateTime.Now;
                 }
                 var employee = collection.FindOneAndUpdate<Employee>(x => x.ID == employeeObjId,
                                 Builders<Employee>.Update
@@ -272,7 +282,7 @@ namespace ControleHora_WebAPI.Controllers
 
             }
 
-            return RedirectToAction("Get", new { id = hourJson.Property("employee_id").Value });
+            return RedirectToAction("Get", new { id = hourJson.Property("employee_id").Value.ToString() });
         }
 
         //UPDATE

@@ -5,8 +5,33 @@
     "role": 1,
     "date_joined": "2017-05-10T12:02:16.337351-03:00",
     "week_hours": 30,
-    "hour_bank": 0,
-    "hours": []
+    "hour_bank": -3,
+    "hours": [
+        {
+            "employee": "MahelAlbudh",
+            "_id": "59148b5b214213252ae2be2d",
+            "employee_id": "59132b7872775a6e74bcc034",
+            "date": "2017-05-11T13:03:39.833931-03:00",
+            "reason": "Took some extra time",
+            "amount": 2
+        },
+        {
+            "employee": "MahelAlbudh",
+            "_id": "59148b7a214213252ae2be2e",
+            "employee_id": "59132b7872775a6e74bcc034",
+            "date": "2017-05-11T13:04:10.332021-03:00",
+            "reason": "Had to go to the doctor",
+            "amount": -4
+        },
+        {
+            "employee": "MahelAlbudh",
+            "_id": "59148bb8214213252ae2be2f",
+            "employee_id": "59132b7872775a6e74bcc034",
+            "date": "2017-05-11T13:05:12.589456-03:00",
+            "reason": "Long lunchtime",
+            "amount": -1
+        }
+    ]
 }
 {
     "_id": "59132ba172775a6e74bcc035",
@@ -16,7 +41,24 @@
     "date_joined": "2017-05-10T12:02:57.477369-03:00",
     "week_hours": 40,
     "hour_bank": 0,
-    "hours": []
+    "hours": [
+        {
+            "employee": "Victor",
+            "_id": "591495af214213252ae2be30",
+            "employee_id": "59132ba172775a6e74bcc035",
+            "date": "2017-05-11T13:47:43.391316-03:00",
+            "reason": "Break",
+            "amount": -1
+        },
+        {
+            "employee": "Victor",
+            "_id": "591495cd214213252ae2be31",
+            "employee_id": "59132ba172775a6e74bcc035",
+            "date": "2017-05-11T13:48:13.331419-03:00",
+            "reason": "Extra time after 6pm",
+            "amount": 1
+        }
+    ]
 }
 {
     "_id": "59132bac72775a6e74bcc036",
@@ -35,8 +77,17 @@
     "role": 1,
     "date_joined": "2017-05-10T12:03:19.968087-03:00",
     "week_hours": 30,
-    "hour_bank": 0,
-    "hours": []
+    "hour_bank": -3,
+    "hours": [
+        {
+            "employee": "Ernest",
+            "_id": "591495fc214213252ae2be32",
+            "employee_id": "59132bb772775a6e74bcc037",
+            "date": "2017-05-11T13:49:00.538005-03:00",
+            "reason": "Had to rush to the hospital",
+            "amount": -3
+        }
+    ]
 }
 {
     "_id": "59132bc572775a6e74bcc038",
