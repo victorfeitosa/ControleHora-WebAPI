@@ -23,7 +23,7 @@ namespace ControleHora_WebAPI.Models
         [BsonRepresentation(BsonType.String)]
         public ObjectId ID { get; set; }
         
-        [BsonElementAttribute("employee_id")]
+        [BsonElement("employee_id")]
         [BsonRepresentation(BsonType.String)]
         public ObjectId? EmployeeId { get; set; }
 
@@ -51,7 +51,7 @@ namespace ControleHora_WebAPI.Models
 
         public override string ToString()
         {
-            return $"Employee: {EmployeeId} | Date: {DateRegistered.ToString()} | Amount: {Amount}" +
+            return $"ID: {ID} | Employee: {EmployeeName}:{EmployeeId} | Date: {DateRegistered.ToString()} | Amount: {Amount}" +
                 $"\nReason: {Reason}";
         }
     }

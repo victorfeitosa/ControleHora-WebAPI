@@ -19,7 +19,7 @@ namespace ControleHora_WebAPI.Controllers
         public static MongoClient Client = new MongoClient(ConnectionString);
         public static IMongoDatabase DB = Client.GetDatabase("controle_horas");
 
-#region Employee CRUD
+        #region Employee CRUD
         //RETRIEVE
         [HttpGet]
         public string Get()
@@ -103,7 +103,7 @@ namespace ControleHora_WebAPI.Controllers
             var employee = BsonSerializer.Deserialize<Employee>(employeeJson.ToString());
 
             //checks wether data is ok
-            if(employee.Name == null || employee.WeekHours == 0)
+            if (employee.Name == null || employee.WeekHours == 0)
             {
                 System.Console.WriteLine("Error, cannot insert employee without required parameters");
                 return RedirectToAction("Get");
@@ -113,11 +113,11 @@ namespace ControleHora_WebAPI.Controllers
             {
                 employee.DateJoined = DateTime.Now;
             }
-            if(employee.Entries == null)
+            if (employee.Entries == null)
             {
                 employee.Entries = new List<HourEntry>();
             }
-            
+
             //inserts document
             try
             {
@@ -169,16 +169,16 @@ namespace ControleHora_WebAPI.Controllers
             return RedirectToAction("Get");
         }
 
-#endregion
+        #endregion
 
-#region Hour Entry CRUD
+        #region Hour Entry CRUD
         //RETRIEVE
         [HttpGet("entries/{id?}")]
         public string GetEntries(string id)
         {
             // var entries = new List<Employee>();
             var collection = DB.GetCollection<Employee>("employees");
-            var entries = new List<BsonDocument>();
+            var entries = new BsonDocument();
 
             try
             {
@@ -186,26 +186,30 @@ namespace ControleHora_WebAPI.Controllers
                 {
                     entries = collection.Aggregate()
                                 .Unwind("hours")
-                                .Group("{_id: '', hours: {$addToSet: {employee_id: '$hours.employee_id'" +
-                                                "employee: '$name'" +
+                                .Group("{_id: '', hours: {$addToSet: {_id: '$hours._id'," +
+                                                "employee_id: '$hours.employee_id'," +
+                                                "employee: '$name'," +
                                                 "date: '$hours.date'," +
                                                 "reason: '$hours.reason'," +
                                                 "amount: '$hours.amount' }}}")
                                 .Project("{_id: 0, hours: 1}")
-                                .ToList();
+                                .Sort(Builders<BsonDocument>.Sort.Ascending("hours.date"))
+                                .First();
                 }
                 else
                 {
                     entries = collection.Aggregate()
                                 .Match(x => x.ID == ObjectId.Parse(id))
                                 .Unwind("hours")
-                                .Group("{_id: '', hours: {$addToSet: {employee_id: '$hours.employee_id'" +
-                                                "employee: '$name'" +
+                                .Group("{_id: '', hours: {$addToSet: {_id: '$hours._id'," +
+                                                "employee_id: '$hours.employee_id'," +
+                                                "employee: '$name'," +
                                                 "date: '$hours.date'," +
                                                 "reason: '$hours.reason'," +
                                                 "amount: '$hours.amount' }}}")
                                 .Project("{_id: 0, hours: 1}")
-                                .ToList();
+                                .Sort(Builders<BsonDocument>.Sort.Ascending("hours.date"))
+                                .First();
                 }
             }
             catch (System.Exception e)
@@ -214,10 +218,10 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine(e);
             }
 
-            return entries.ToJson();
+            return entries.GetValue("hours").ToJson();
         }
 
-        [HttpGet("entries/employee/{name}")]
+        [HttpGet("entries/from/{employeeName}")]
         public IActionResult GetEntriesByEmployeeName(string employeeName)
         {
             var collection = DB.GetCollection<Employee>("employees");
@@ -225,7 +229,7 @@ namespace ControleHora_WebAPI.Controllers
             try
             {
                 var employee = collection.Find<Employee>(x => x.Name == employeeName).First();
-                return RedirectToAction("GetEntries", new {id = employee.ID.ToString()});
+                return RedirectToAction("GetEntries", new { id = employee.ID.ToString() });
             }
             catch (System.Exception e)
             {
@@ -286,25 +290,25 @@ namespace ControleHora_WebAPI.Controllers
         }
 
         //UPDATE
-        [HttpPut("entries/{entry}")]
-        public IActionResult UpdateEntry(JObject entryJson)
+        [HttpPut("entries/update")]
+        public IActionResult UpdateEntry([FromBody]JObject entryJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
+            var entry = BsonSerializer.Deserialize<HourEntry>(entryJson.ToString());
             try
             {
-                var entry = BsonSerializer.Deserialize<HourEntry>(entryJson.ToString());
-                var employee = collection.FindOneAndUpdate<Employee>(x => x.ID == entry.EmployeeId,
-                                Builders<Employee>.Update.Set(x => x.Entries.Find(e => e.ID == entry.ID),
-                                entry));
+                //FIXME: fix this to strong typed
+                var employee = collection.FindOneAndUpdate("{'_id': '"+entry.EmployeeId.ToString()+"', 'hours._id': '"+entry.ID.ToString()+"'}",
+                                            "{$set: {'hours.$': "+entry.ToBsonDocument().ToString()+"}}");
             }
-            catch(System.Exception e)
+            catch (System.Exception e)
             {
                 System.Console.WriteLine("Error, could not update the entry");
                 System.Console.WriteLine(e);
 
                 return RedirectToAction("Get");
             }
-            return RedirectToAction("Get", new {id = entryJson.Property("employee_id").Value.ToString()});
+            return RedirectToAction("Get", new { id = entryJson.Property("employee_id").Value.ToString() });
         }
 
         //DELETE
@@ -315,6 +319,6 @@ namespace ControleHora_WebAPI.Controllers
             return RedirectToAction("Get");
         }
 
-#endregion
+        #endregion
     }
 }
