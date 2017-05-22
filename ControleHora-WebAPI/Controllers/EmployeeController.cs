@@ -22,7 +22,7 @@ namespace ControleHora_WebAPI.Controllers
         #region Employee CRUD
         //RETRIEVE
         [HttpGet]
-        public string Get()
+        public JArray Get()
         {
             List<Employee> employees = new List<Employee>();
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
@@ -41,11 +41,11 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine(e);
             }
 
-            return employees.ToJson();
+            return JArray.Parse(employees.ToJson());
         }
 
         [HttpGet("id/{id}")]
-        public string Get(string id)
+        public JArray Get(string id)
         {
             if (id == null)
             {
@@ -68,11 +68,11 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
             }
-            return employees.ToJson();
+            return JArray.Parse(employees.ToJson());
         }
 
         [HttpGet("{name}")]
-        public string GetByName(string name)
+        public JArray GetByName(string name)
         {
             List<Employee> employees = new List<Employee>();
             IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
@@ -90,7 +90,7 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
             }
-            return employees.ToJson();
+            return JArray.Parse(employees.ToJson());
         }
 
         //CREATE
@@ -174,7 +174,7 @@ namespace ControleHora_WebAPI.Controllers
         #region Hour Entry CRUD
         //RETRIEVE
         [HttpGet("entries/{id?}")]
-        public string GetEntries(string id)
+        public JArray GetEntries(string id)
         {
             // var entries = new List<Employee>();
             var collection = DB.GetCollection<Employee>("employees");
@@ -218,7 +218,7 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine(e);
             }
 
-            return entries.GetValue("hours").ToJson();
+            return JArray.Parse(entries.GetValue("hours").ToJson());
         }
 
         [HttpGet("entries/from/{employeeName}")]
@@ -228,7 +228,7 @@ namespace ControleHora_WebAPI.Controllers
 
             try
             {
-                var employee = collection.Find<Employee>(x => x.Name == employeeName).First();
+                var employee = collection.Find<Employee>(e => e.Name == employeeName).First();
                 return RedirectToAction("GetEntries", new { id = employee.ID.ToString() });
             }
             catch (System.Exception e)
@@ -258,7 +258,7 @@ namespace ControleHora_WebAPI.Controllers
                 if (hourEntry.EmployeeName == null)
                 {
                     hourEntry.EmployeeName = collection
-                                                .Find(x => x.ID == employeeObjId)
+                                                .Find(e => e.ID == employeeObjId)
                                                 .First().Name;
                 }
                 if (hourEntry.ID == null || hourEntry.ID == ObjectId.Empty)
@@ -269,10 +269,10 @@ namespace ControleHora_WebAPI.Controllers
                 {
                     hourEntry.DateRegistered = DateTime.Now;
                 }
-                var employee = collection.FindOneAndUpdate<Employee>(x => x.ID == employeeObjId,
+                var employee = collection.FindOneAndUpdate<Employee>(e => e.ID == employeeObjId,
                                 Builders<Employee>.Update
-                                .AddToSet(x => x.Entries, hourEntry)
-                                .Inc(x => x.HourBank, hourEntry.Amount));
+                                .AddToSet(e => e.Entries, hourEntry)
+                                .Inc(e => e.HourBank, hourEntry.Amount));
             }
             catch (System.FormatException e)
             {
@@ -297,9 +297,14 @@ namespace ControleHora_WebAPI.Controllers
             var entry = BsonSerializer.Deserialize<HourEntry>(entryJson.ToString());
             try
             {
+                var hour = collection.Find<Employee>(Builders<Employee>.Filter.ElemMatch(e => e.Entries,
+                                                        h => h.ID == entry.ID)).ToList().First()
+                                                    .Entries.Find(h => h.ID == entry.ID);
+                var diff = entry.Amount - hour.Amount;
                 //FIXME: fix this to strong typed
-                var employee = collection.FindOneAndUpdate("{'_id': '"+entry.EmployeeId.ToString()+"', 'hours._id': '"+entry.ID.ToString()+"'}",
-                                            "{$set: {'hours.$': "+entry.ToBsonDocument().ToString()+"}}");
+                collection.FindOneAndUpdate<Employee>(Builders<Employee>.Filter.ElemMatch(e => e.Entries, h => h.ID == entry.ID),
+                                                    Builders<Employee>.Update.Set(e => e.Entries[-1], entry)
+                                                        .Inc(e => e.HourBank, diff));
             }
             catch (System.Exception e)
             {
@@ -312,10 +317,29 @@ namespace ControleHora_WebAPI.Controllers
         }
 
         //DELETE
-        //TODO: implement this
-        [HttpDelete("entries/{id}")]
-        public IActionResult DeleteEntry(string entryId)
+        [HttpDelete("entries")]
+        public IActionResult DeleteEntry([FromBody]JObject entryJson)
         {
+            var entryId = entryJson.Property("_id").Value.ToString();
+            System.Console.WriteLine("Deleting entry " + entryId);
+            var collection = DB.GetCollection<Employee>("employees");
+            try
+            {
+                //Get the hour to delete
+                var hourId = ObjectId.Parse(entryId);
+                var hour = collection.Find<Employee>(Builders<Employee>.Filter.ElemMatch(e => e.Entries,
+                                                        h => h.ID == hourId)).ToList().First()
+                                                    .Entries.Find(h => h.ID == hourId);
+                //Pull the hour from the array
+                collection.FindOneAndUpdate<Employee>(Builders<Employee>.Filter.ElemMatch(e => e.Entries, h => h.ID == hourId),
+                                                    Builders<Employee>.Update.PullFilter(e => e.Entries, h => h.ID == hourId)
+                                                        .Inc(e => e.HourBank, -hour.Amount));
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine("Error, could not delete the entry");
+                System.Console.WriteLine(e);
+            }
             return RedirectToAction("Get");
         }
 
