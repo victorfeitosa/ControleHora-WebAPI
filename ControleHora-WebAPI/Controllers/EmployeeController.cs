@@ -301,7 +301,6 @@ namespace ControleHora_WebAPI.Controllers
                                                         h => h.ID == entry.ID)).ToList().First()
                                                     .Entries.Find(h => h.ID == entry.ID);
                 var diff = entry.Amount - hour.Amount;
-                //FIXME: fix this to strong typed
                 collection.FindOneAndUpdate<Employee>(Builders<Employee>.Filter.ElemMatch(e => e.Entries, h => h.ID == entry.ID),
                                                     Builders<Employee>.Update.Set(e => e.Entries[-1], entry)
                                                         .Inc(e => e.HourBank, diff));
