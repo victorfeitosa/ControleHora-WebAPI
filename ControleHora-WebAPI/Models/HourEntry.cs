@@ -21,7 +21,7 @@ namespace ControleHora_WebAPI.Models
         [BsonId]
         [BsonElement("_id")]
         [BsonRepresentation(BsonType.String)]
-        public ObjectId ID { get; set; }
+        public ObjectId ID { get; private set; }
         
         [BsonElement("employee_id")]
         [BsonRepresentation(BsonType.String)]

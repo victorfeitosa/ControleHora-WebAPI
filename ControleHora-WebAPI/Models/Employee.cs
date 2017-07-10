@@ -13,7 +13,7 @@ namespace ControleHora_WebAPI.Models
         [BsonId]
         [BsonElement("_id")]
         [BsonRepresentation(BsonType.String)]
-        public ObjectId ID { get; set; }
+        public ObjectId ID { get; private set; }
 
         [BsonElement("name")]
         public string Name { get; set; }
@@ -32,7 +32,7 @@ namespace ControleHora_WebAPI.Models
         //Defines a nullable date
         [BsonElement("date_joined")]
         [BsonRepresentation(BsonType.String)]
-        public DateTime? DateJoined { get; set; }
+        public DateTime? DateJoined { get; private set; }
 
 
         [BsonElement("week_hours")]
@@ -48,7 +48,7 @@ namespace ControleHora_WebAPI.Models
         {
             HourBank = 0;
         }
-        public Employee(string name, string email, Position pos, Role role, DateTime dateJoined, HoursWeek weekHours)
+        public Employee(string name, string email, Position pos, Role role, HoursWeek weekHours, DateTime dateJoined = new DateTime())
         {
             Name = name;
             Email = email;

@@ -19,13 +19,43 @@ namespace ControleHora_WebAPI.Controllers
         public static MongoClient Client = new MongoClient(ConnectionString);
         public static IMongoDatabase DB = Client.GetDatabase("controle_horas");
 
-        #region Employee CRUD
+# region Helper Methods
+        //Try to "authenticate" before doing any real work
+
+        public Boolean Auth(string email)
+        {
+            var success = false;
+            var collection = DB.GetCollection<Employee>("employees");
+
+            try
+            {
+                var result = collection.Find<Employee>(e => e.Email == email);
+                
+                if(result.Count() > 0 && result.First().ID != ObjectId.Empty)
+                {
+                    success = true;
+                }
+            }
+            catch (System.Exception e)
+            {
+                System.Console.WriteLine(e);
+            }
+
+            return success;
+        }
+
+#endregion
+
+#region Employee CRUD
         //RETRIEVE
         [HttpGet]
         public JArray Get()
         {
             List<Employee> employees = new List<Employee>();
-            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
             try
             {
                 employees = collection.Find(new BsonDocument()).ToList();
@@ -33,12 +63,16 @@ namespace ControleHora_WebAPI.Controllers
                 {
                     throw new Exception("Error, couldn't find any documents.");
                 }
-
             }
             catch (System.Exception e)
             {
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
 
             return JArray.Parse(employees.ToJson());
@@ -52,7 +86,10 @@ namespace ControleHora_WebAPI.Controllers
                 throw new Exception($"Error, couldn't find object id parameter.");
             }
             List<Employee> employees = new List<Employee>();
-            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
             try
             {
                 var objId = ObjectId.Parse(id);
@@ -67,6 +104,11 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
             return JArray.Parse(employees.ToJson());
         }
@@ -75,7 +117,10 @@ namespace ControleHora_WebAPI.Controllers
         public JArray GetByName(string name)
         {
             List<Employee> employees = new List<Employee>();
-            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
             try
             {
                 employees = collection.Find(x => x.Name == name).ToList();
@@ -89,6 +134,11 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error on listing employees");
                 System.Console.WriteLine(e);
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
             return JArray.Parse(employees.ToJson());
         }
@@ -98,6 +148,9 @@ namespace ControleHora_WebAPI.Controllers
         public IActionResult Post([FromBody] JObject employeeJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
 
             //deserializes JSON received from the DB naming convention
             var employee = BsonSerializer.Deserialize<Employee>(employeeJson.ToString());
@@ -109,10 +162,6 @@ namespace ControleHora_WebAPI.Controllers
                 return RedirectToAction("Get");
             }
             //Correct null properties
-            if (employee.DateJoined == null)
-            {
-                employee.DateJoined = DateTime.Now;
-            }
             if (employee.Entries == null)
             {
                 employee.Entries = new List<HourEntry>();
@@ -128,7 +177,11 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error, could not insert Employee into the database.");
                 System.Console.WriteLine(e);
-                throw new Exception();
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
             return RedirectToAction("Get", new { id = employee.ID.ToString() });
         }
@@ -138,6 +191,9 @@ namespace ControleHora_WebAPI.Controllers
         public IActionResult Update([FromBody] JObject employeeJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
             try
             {
                 var employee = BsonSerializer.Deserialize<Employee>(employeeJson.ToString());
@@ -147,7 +203,11 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error, could not update Employee in the database.");
                 System.Console.WriteLine(e);
-                throw new Exception();
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
             return RedirectToAction("Get", new { id = employeeJson.Property("_id").Value.ToString() });
         }
@@ -156,7 +216,10 @@ namespace ControleHora_WebAPI.Controllers
         [HttpDelete("id/{id}")]
         public IActionResult Delete(string id)
         {
-            IMongoCollection<Employee> collection = DB.GetCollection<Employee>("employees");
+            var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
             try
             {
                 collection.DeleteOne(x => x.ID == ObjectId.Parse(id));
@@ -165,19 +228,28 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error on deleting employee");
                 System.Console.WriteLine(e);
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
             return RedirectToAction("Get");
         }
 
-        #endregion
+#endregion
 
-        #region Hour Entry CRUD
+#region Hour Entry CRUD
         //RETRIEVE
         [HttpGet("entries/{id?}")]
         public JArray GetEntries(string id)
         {
             // var entries = new List<Employee>();
             var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
+
             var entries = new BsonDocument();
 
             try
@@ -216,6 +288,11 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error on listing hour entries");
                 System.Console.WriteLine(e);
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
 
             return JArray.Parse(entries.GetValue("hours").ToJson());
@@ -225,6 +302,9 @@ namespace ControleHora_WebAPI.Controllers
         public IActionResult GetEntriesByEmployeeName(string employeeName)
         {
             var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
 
             try
             {
@@ -235,6 +315,11 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error on listing hour entries");
                 System.Console.WriteLine(e);
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
 
             return RedirectToAction("Get");
@@ -245,6 +330,10 @@ namespace ControleHora_WebAPI.Controllers
         public IActionResult PostEntry([FromBody] JObject hourJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
+
             if (hourJson.Property("employee_id") == null)
             {
                 throw new Exception("Error, employee id is not valid");
@@ -261,10 +350,10 @@ namespace ControleHora_WebAPI.Controllers
                                                 .Find(e => e.ID == employeeObjId)
                                                 .First().Name;
                 }
-                if (hourEntry.ID == null || hourEntry.ID == ObjectId.Empty)
-                {
-                    hourEntry.ID = ObjectId.GenerateNewId(DateTime.UtcNow);
-                }
+                // if (hourEntry.ID == null || hourEntry.ID == ObjectId.Empty)
+                // {
+                //     hourEntry.ID = ObjectId.GenerateNewId(DateTime.UtcNow);
+                // }
                 if (hourEntry.DateRegistered == null)
                 {
                     hourEntry.DateRegistered = DateTime.Now;
@@ -278,12 +367,18 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error, JSON Format not recognized!");
                 System.Console.WriteLine(e);
+                success = false;
             }
             catch (System.Exception e)
             {
                 System.Console.WriteLine("Error, could not insert Hour Entry into the database.");
                 System.Console.WriteLine(e);
 
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
 
             return RedirectToAction("Get", new { id = hourJson.Property("employee_id").Value.ToString() });
@@ -294,6 +389,10 @@ namespace ControleHora_WebAPI.Controllers
         public IActionResult UpdateEntry([FromBody]JObject entryJson)
         {
             var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
+
             var entry = BsonSerializer.Deserialize<HourEntry>(entryJson.ToString());
             try
             {
@@ -309,8 +408,13 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error, could not update the entry");
                 System.Console.WriteLine(e);
+                success = false;
 
                 return RedirectToAction("Get");
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
             return RedirectToAction("Get", new { id = entryJson.Property("employee_id").Value.ToString() });
         }
@@ -320,8 +424,11 @@ namespace ControleHora_WebAPI.Controllers
         public IActionResult DeleteEntry([FromBody]JObject entryJson)
         {
             var entryId = entryJson.Property("_id").Value.ToString();
-            System.Console.WriteLine("Deleting entry " + entryId);
+
             var collection = DB.GetCollection<Employee>("employees");
+            var accessEntries = DB.GetCollection<AccessEntry>("access");
+
+            bool success = true;
             try
             {
                 //Get the hour to delete
@@ -338,10 +445,15 @@ namespace ControleHora_WebAPI.Controllers
             {
                 System.Console.WriteLine("Error, could not delete the entry");
                 System.Console.WriteLine(e);
+                success = false;
+            }
+            finally
+            {
+                accessEntries.InsertOne(new AccessEntry(ObjectId.Empty, AccessOperation.List, success));
             }
             return RedirectToAction("Get");
         }
 
-        #endregion
+#endregion
     }
 }
