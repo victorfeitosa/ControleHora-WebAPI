@@ -44,6 +44,9 @@ namespace ControleHora_WebAPI.Models
         [BsonElement("hours")]
         public List<HourEntry> Entries { get; set; }
 
+        public List<Alert> Alerts { get; set; }
+        public bool LastAlertActive { get; set; }
+
         public Employee()
         {
             HourBank = 0;
@@ -57,7 +60,10 @@ namespace ControleHora_WebAPI.Models
             DateJoined = dateJoined;
             WeekHours = weekHours;
             HourBank = 0;
+
             Entries = new List<HourEntry>();
+            Alerts = new List<Alert>();
+            LastAlertActive = false;
         }
 
         public void addHourEntry(DateTime date, int amount, string reason)

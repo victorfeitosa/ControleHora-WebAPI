@@ -20,11 +20,12 @@ namespace ControleHora_WebAPI.Controllers
         public static IMongoDatabase DB = Client.GetDatabase("controle_horas");
 
 # region Helper Methods
+        [HttpGet("auth/{email}")]
         //Try to "authenticate" before doing any real work
-
-        public Boolean Auth(string email)
+        //Really just returns the user id so he can perform operations on himself
+        public string Auth(string email)
         {
-            var success = false;
+            ObjectId success = ObjectId.Empty;
             var collection = DB.GetCollection<Employee>("employees");
 
             try
@@ -33,7 +34,7 @@ namespace ControleHora_WebAPI.Controllers
                 
                 if(result.Count() > 0 && result.First().ID != ObjectId.Empty)
                 {
-                    success = true;
+                    success = result.First().ID;
                 }
             }
             catch (System.Exception e)
@@ -41,7 +42,7 @@ namespace ControleHora_WebAPI.Controllers
                 System.Console.WriteLine(e);
             }
 
-            return success;
+            return success.ToString();
         }
 
 #endregion

@@ -1,6 +1,7 @@
 {
     "_id": "59132b7872775a6e74bcc034",
     "name": "MahelAlbudh",
+    "email": "mahel.albudh@hourcheck.com",
     "position": 0,
     "role": 1,
     "date_joined": "2017-05-10T12:02:16.337351-03:00",
@@ -36,6 +37,7 @@
 {
     "_id": "59132ba172775a6e74bcc035",
     "name": "Victor",
+    "email": "victor@hourcheck.com",
     "position": 1,
     "role": 1,
     "date_joined": "2017-05-10T12:02:57.477369-03:00",
@@ -63,6 +65,7 @@
 {
     "_id": "59132bac72775a6e74bcc036",
     "name": "Harold",
+    "email": "harold_haroldson@hourcheck.com",
     "position": 0,
     "role": 1,
     "date_joined": "2017-05-10T12:03:08.422263-03:00",
@@ -73,6 +76,7 @@
 {
     "_id": "59132bb772775a6e74bcc037",
     "name": "Ernest",
+    "email": "ehemingway@hourcheck.com",
     "position": 0,
     "role": 1,
     "date_joined": "2017-05-10T12:03:19.968087-03:00",
@@ -92,6 +96,7 @@
 {
     "_id": "59132bc572775a6e74bcc038",
     "name": "Joanne",
+    "email": "joannedarch@hourcheck.com",
     "position": 1,
     "role": 2,
     "date_joined": "2017-05-10T12:03:33.293895-03:00",
