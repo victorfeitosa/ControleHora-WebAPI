@@ -19,7 +19,7 @@ namespace ControleHora_WebAPI.Models
         public string Name { get; set; }
 
         [RegularExpression(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])")]
-        [StringLength(10)]
+        [StringLength(64)]
         [BsonElement("email")]
         public string Email { get; set; }
 
@@ -43,8 +43,11 @@ namespace ControleHora_WebAPI.Models
 
         [BsonElement("hours")]
         public List<HourEntry> Entries { get; set; }
-
+    
+        [BsonElement("alerts")]
         public List<Alert> Alerts { get; set; }
+        
+        [BsonElement("last_alert_active")]
         public bool LastAlertActive { get; set; }
 
         public Employee()

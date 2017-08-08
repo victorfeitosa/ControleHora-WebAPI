@@ -16,9 +16,7 @@ namespace ControleHora_WebAPI.Models
         [BsonRepresentation(BsonType.String)]
         public ObjectId FromID { get; private set; }
 
-        [BsonElement("employee_id")]
-        [BsonRepresentation(BsonType.String)]
-        public ObjectId EmployeeId { get; private set; }
+        public bool Active { get; set; }
 
         [BsonElement("date")]
         [BsonRepresentation(BsonType.String)]
@@ -27,12 +25,13 @@ namespace ControleHora_WebAPI.Models
         [BsonElement("message")]
         public string Message { get; set; }
 
-        public Alert(ObjectId from, ObjectId to, DateTime date, string message = "Please, pay attention to your shcedule and avoid missing out on work.")
+        public Alert(ObjectId from, DateTime date,
+            string message = "Please, pay attention to your shcedule and avoid missing out on work.")
         {
             FromID = from;
-            EmployeeId = to;
             Date = date;
             Message = message;
+            Active = true;
         }
     }
 }

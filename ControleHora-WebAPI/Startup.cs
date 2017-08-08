@@ -41,8 +41,8 @@ namespace ControleHora_WebAPI
             loggerFactory.AddDebug();
 
             //NOTE: change this to allow specific domain
-            app.UseCors(builder => builder.WithOrigins("http://localhost:8008")
-                                            .AllowAnyHeader());
+            // app.UseCors(builder => builder.WithOrigins("http://localhost:8008")
+            //                                 .AllowAnyHeader());
                                             
             app.UseMvc();
         }
